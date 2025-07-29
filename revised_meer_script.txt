@@ -1,0 +1,991 @@
+rm(list=ls())
+library(tidyr) 
+library(dplyr)
+library(microDecon)
+library(stringr)
+library(metacoder)
+library(vegan)
+library(ggplot2)
+library(phyloseq)
+library(MicrobiotaProcess)
+library(VennDiagram)
+library(pairwiseAdonis)
+library(eulerr)
+library(tibble)
+library(iNEXT)
+library(viridis)
+library(gridExtra)
+
+setwd ("path/to/folder/")
+metadata_df <- read.csv('./metadata.csv')
+data <- read.csv("/Table S6 BIN table.csv", header = TRUE)
+group_colors <- c("Beating" = 'darkgray', "Berlese" = "darkolivegreen", "Light trap" = "blue", "Malaise trap" = "firebrick", "Pitfall" = "darkgoldenrod", "Polytrap" = "darkorchid4", "Winkler" = "darkorange")
+data <- data %>%
+  rename_with(~ gsub("_added$", "", .), everything())
+
+############## ANOVA on species richness (total BIN richness) #############################
+
+sample_data <- data[, -(1:2)]
+bin_richness <- colSums (sample_data > 0)
+
+richness_df <- data.frame(sample = names(bin_richness),
+                          BIN_richness = bin_richness)
+
+metadata_df <- merge(metadata_df, richness_df, by = "sample")
+
+metadata_df
+
+anova_model <- aov(BIN_richness ~ trap_name * season + trap_name:trap, data = metadata_df)
+summary(anova_model)
+
+hist(residuals(anova_model))        # should look bell-shaped
+qqnorm(residuals(anova_model))      # should fall along the diagonal
+qqline(residuals(anova_model))
+plot(anova_model, which = 1)
+
+aovplot <- ggplot(metadata_df, aes(x = trap_name, y = BIN_richness, fill = trap_name)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.08), 
+              aes(shape = type, color = trap_name), 
+              size = 1.5, alpha = 0.5) +  # Adjust transparency here
+  scale_fill_manual(values = group_colors) +
+  scale_color_manual(values = group_colors) +
+  guides(fill = "none", color = "none")+
+  theme_minimal()# Hide redundant legend
+
+aovplot
+
+
+################# Parsing classification data
+
+obj <- parse_tax_data(data,
+                      class_cols = "classification",
+                      class_sep = ";",
+                      class_regex = "^([a-z]{0,1})_{0,2}(.*)$",
+                      class_key = c("tax_rank" = "taxon_rank", "name" = "taxon_name"))
+
+obj$data$tax_data <- obj$data$tax_data[c("taxon_id","bin_uri", metadata_df$sample)]
+obj$data$tax_props <- calc_obs_props(obj, "tax_data", cols= metadata_df$sample, other_cols = TRUE)
+obj$data$tax_abund <- calc_taxon_abund(obj, "tax_data", cols = metadata_df$sample)
+
+obj$data$tax_occ <- calc_n_samples(obj, "tax_abund", groups = metadata_df$sample_method, cols = metadata_df$sample)
+
+metadata_df$inv_simp <- diversity(obj$data$tax_data[, metadata_df$sample],
+                                  index = "invsimpson",
+                                  MARGIN = 2) # What orietation the matrix is in
+
+################ PCoA ######### 
+
+ps_obj <- metacoder::as_phyloseq(obj,
+                                 otu_table = "tax_data",
+                                 otu_id_col = "bin_uri",
+                                 sample_data = metadata_df,
+                                 sample_id_col = "sample")
+
+pcoares <- get_pcoa(obj=ps_obj, distmethod="jaccard", method="hellinger")
+
+pcoaplot2 <- ggordpoint(
+  obj = pcoares, 
+  biplot = TRUE, 
+  speciesannot = TRUE,
+  factorNames = c("trap_name", "season"), 
+  ellipse = TRUE, 
+  size = 6 
+  ) +
+  scale_shape_manual(
+    values = c("DRY" = 22 , "WET" = 17)
+  ) +
+  theme(
+    legend.text = element_text(size = 12),  # Larger legend text
+    legend.title = element_text(size = 14),
+    legend.key = element_rect(fill = "white")# Larger legend title
+  ) +
+  guides(
+    color = guide_legend(override.aes = list(size = 5)),  # Larger points in color legend
+    shape = guide_legend(override.aes = list(size = 5))   # Larger points in shape legend
+  )+
+  scale_fill_manual(values = c("darkgray", "darkolivegreen", "blue", 
+                               "firebrick", "darkgoldenrod", "darkorchid4", 
+                               "darkorange"))
+
+pcoaplot2
+
+############################## Diversity metrics
+
+alphaobj <- get_alphaindex(ps_obj)
+
+
+################### Plot main orders captured
+
+classtaxa <- get_taxadf(obj=ps_obj, taxlevel=4)
+
+ptrap <- ggbartax(obj = classtaxa, facetNames = "trap_name", topn = 5) +
+  xlab(NULL) +
+  ylab("Presence") +
+  scale_fill_manual(values = c(colorRampPalette(RColorBrewer::brewer.pal(12, "Set3"))(21))) +
+  guides(fill = guide_legend(keywidth = 1, keyheight = 1)) + 
+  theme(axis.text.x = element_blank()) +
+  geom_hline(yintercept = c(25, 50, 75), linetype = "dashed", color = "black")  # Dashed lines at 25, 50, 75
+
+
+ptrap
+
+################### Jaccard dissimilarity matrix, betadispersion and PERMANOVA
+
+beta_dist <- vegdist(t(obj$data$tax_data[, metadata_df$sample]),
+                     index = 'jaccard')
+
+dispersion_trap <- betadisper(beta_dist, metadata_df$trap_name)
+anova(dispersion_trap)
+
+plot(dispersion_trap)
+
+boxplot(dispersion_trap, main = "Dispersion by Trap Type")
+
+tukey <- TukeyHSD(dispersion_trap)
+tukey
+
+permutest(dispersion_trap, permutations = 999)
+
+scores_df <- as.data.frame(scores(dispersion_trap)$sites)
+scores_df$group <- dispersion_trap$group
+
+ggplot(scores_df, aes(x = PCoA1, y = PCoA2, color = group)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_manual(values = group_colors) +
+  theme_minimal() +
+  labs(
+    title = "Betadisper Ordination by Trap Type",
+    x = "PCoA1",
+    y = "PCoA2",
+    color = "Trap Type"
+  )
+
+dist_df <- data.frame(
+  distances = dispersion_trap$distances,
+  group = dispersion_trap$group
+)
+
+ggplot(dist_df, aes(x = group, y = distances, fill = group)) +
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_manual(values = group_colors) +
+  theme_minimal() +
+  labs(
+    title = "Dispersion by Trap Type",
+    x = "Trap Type",
+    y = "Distance to Centroid"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+set.seed(999)
+mds <- metaMDS(beta_dist)
+
+plot(mds, display = "sites")
+points(mds, groups = metadata_df$trap_name,
+col = as.factor(metadata_df$trap_name),
+pch =19)
+
+ordiellipse(mds, groups = metadata_df$trap_name,
+            kind ="sd",
+            conf = 0.95,
+            lwd = 2,
+            col = as.factor(metadata_df$trap_name))
+
+
+mds_data <-as.data.frame(mds$points)
+
+
+permanova_trap <- adonis2(beta_dist ~ trap_name + trap_name:season + trap_name:trap, data = metadata_df, by  = "terms")
+permanova_trap
+
+pairwise.results <- pairwise.adonis2(
+  beta_dist ~ sample_method,
+  data = metadata_df
+)
+
+pairwise.results
+
+################### Beta diversity per plot
+
+sample_data <- data[, -(1:2)]
+
+# Transpose: rows = samples, columns = BINs
+sample_matrix <- t(as.matrix(sample_data))  # dimensions: samples × BINs
+
+# Attach plot info
+sample_df <- as.data.frame(sample_matrix)
+sample_df$plot <- metadata_df$trap[match(rownames(sample_df), metadata_df$sample)]
+
+plot_bin_matrix <- rowsum(sample_df[, -ncol(sample_df)], group = sample_df$plot)
+
+# Convert to 1/0: if a BIN is present in any sample from a plot, it's present
+plot_bin_matrix[plot_bin_matrix > 0] <- 1
+
+# Gamma: total unique BINs across all plots
+gamma <- specnumber(colSums(plot_bin_matrix) > 0)  
+
+# Alpha: richness per plot
+alpha_vals <- specnumber(plot_bin_matrix)
+mean_alpha <- mean(alpha_vals)
+
+# Whittaker beta
+beta <- gamma / mean_alpha
+
+cat("Gamma diversity:", gamma, "\n")
+cat("Mean alpha diversity:", mean_alpha, "\n")
+cat("Whittaker beta diversity:", beta, "\n")
+
+se_alpha <- sd(alpha_vals) / sqrt(length(alpha_vals))
+se_alpha
+
+########################## BIN Overlap
+
+sample_groups <- sample_data(ps_obj)[["sample_method"]]
+
+otu.table.data <- otu_table(ps_obj)
+
+unique_taxa_counts <- tapply(colnames(otu.table.data), sample_groups, function(samples) {
+  # Subset the OTU table for the current group
+  group_otu <- otu.table.data[, samples, drop = FALSE]
+  # Count taxa present in at least one sample within the group
+  sum(rowSums(group_otu) > 0)
+})
+
+unique_taxa_counts 
+
+# Extract OTU table and convert to binary presence/absence
+otu_table_binary <- otu_table(ps_obj) > 0
+
+# Extract metadata
+metadata <- sample_data(ps_obj)
+
+trap_names <- metadata$trap_name
+
+# Group OTUs by trap type
+otu_by_trap <- apply(otu_table_binary, 1, function(row) {
+  tapply(row, trap_names, max) # Maximum across samples in each trap type
+})
+
+# Convert to a matrix
+trap_otu_matrix <- t(otu_by_trap)
+
+# Calculate pairwise intersections
+overlap_counts <- sapply(colnames(trap_otu_matrix), function(trap1) {
+  sapply(colnames(trap_otu_matrix), function(trap2) {
+    sum(trap_otu_matrix[, trap1] & trap_otu_matrix[, trap2]) # Intersection
+  })
+})
+
+# Convert to a data frame for easy visualization
+overlap_df <- as.data.frame(as.table(overlap_counts))
+colnames(overlap_df) <- c("Trap1", "Trap2", "Shared_OTUs")
+
+head(overlap_df)  # View the first few rows
+
+trap_types <- metadata$type
+names(trap_types) <- metadata$trap_name
+
+trap_order <- unique(metadata$trap_name[order(match(metadata$trap_name, c("Berlese", "Winkler", "Beating", "Pitfall", "Polytrap", "Malaise trap", "Light trap")))])
+overlap_df$Trap1 <-factor(overlap_df$Trap1, levels = trap_order)
+overlap_df$Trap2 <-factor(overlap_df$Trap2, levels = trap_order)
+
+heatmap2 <- ggplot(overlap_df, aes(x = Trap1, y = Trap2, fill = Shared_OTUs)) +
+  geom_tile(color = "darkgoldenrod4") +
+  geom_text(aes(label = Shared_OTUs), color = "black", size = 6) +
+  scale_fill_gradient(low = "goldenrod", high = "firebrick4") +
+  labs(title = "Pairwise BIN Overlap Between Traps",
+       fill = "Shared BINs") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10)
+  )
+
+heatmap2
+
+jaccard_sim <- 1 - as.matrix(beta_dist)
+# Convert jaccard_sim matrix to long format
+jaccard_long <- as.data.frame(as.table(as.matrix(jaccard_sim))) %>%
+  rename(sample1 = Var1, sample2 = Var2, JaccardIndex = Freq)
+
+# Join metadata to get trap types
+jaccard_meta <- jaccard_long %>%
+  left_join(metadata_df, by = c("sample1" = "sample")) %>%
+  rename(Trap1 = trap_name) %>%
+  left_join(metadata_df, by = c("sample2" = "sample")) %>%
+  rename(Trap2 = trap_name)
+
+# Optional: Remove self-comparisons (Sample1 == Sample2)
+jaccard_meta_filtered <- jaccard_meta %>%
+  filter(sample1 != sample2)
+
+# Group by trap type pairs and calculate mean Jaccard index
+jaccard_summary <- jaccard_meta_filtered %>%
+  group_by(Trap1, Trap2) %>%
+  summarise(mean_Jaccard = mean(JaccardIndex), .groups = "drop")
+
+jaccard_summary <- as.data.frame(jaccard_summary)
+
+trap_order <- unique(metadata$trap_name[order(match(metadata$trap_name, c("Berlese", "Winkler", "Beating", "Pitfall", "Polytrap", "Malaise trap", "Light trap")))])
+jaccard_summary$Trap1 <-factor(jaccard_summary$Trap1, levels = trap_order)
+jaccard_summary$Trap2 <-factor(jaccard_summary$Trap2, levels = trap_order)
+
+heatmap3 <- ggplot(jaccard_summary, aes(x = Trap1, y = Trap2, fill = mean_Jaccard)) +
+  geom_tile(color = "darkgoldenrod4") +
+  geom_text(aes(label = sprintf("%.3f", mean_Jaccard)), color = "black", size = 6) +
+  scale_fill_gradient(low = "goldenrod", high = "firebrick4") +
+  labs(title = "Pairwise Jaccard Index Between Traps",
+       fill = "Jaccard Index") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10)
+  )
+
+heatmap3
+
+################iNEXT
+ 
+ # Step 1: Remove the second column (classification), keeping bin_uri (OTU_ID equivalent)
+ otu_matrix_clean <- data[, -2]  # Remove 'classification' column
+ 
+ # Ensure bin_uri is set as rownames (check if 'bin_uri' column exists)
+ if ("bin_uri" %in% colnames(otu_matrix_clean)) {
+   rownames(otu_matrix_clean) <- otu_matrix_clean$bin_uri  # Set bin_uri as row names
+   otu_matrix_clean <- otu_matrix_clean[, -1]  # Remove bin_uri column
+ } else {
+   stop("Column 'bin_uri' not found in the dataset!")
+ }
+ 
+ # Step 2: Reshape the data to long format and preserve 'bin_uri' column
+ otu_long <- otu_matrix_clean %>%
+   rownames_to_column("bin_uri") %>%  # Convert row names to a column (character type)
+   pivot_longer(cols = -bin_uri, names_to = "sample", values_to = "Presence") %>%
+   left_join(metadata_df, by = "sample")  # Add trap_name information
+ 
+ # Subset the otu_long table to keep only the necessary columns
+ otu_subset <- otu_long[, c(1, 2, 3, 8)]
+ 
+ beating_data <- otu_subset %>%
+   filter(trap_name == "Beating") %>%
+   pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+   select(-trap_name)  # Remove trap_name column from data
+ 
+ # Set bin_uri as row names
+ beating_data <- beating_data %>%
+   column_to_rownames(var = "bin_uri")
+ 
+ berlese_data <- otu_subset %>%
+   filter(trap_name == "Berlese") %>%
+   pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+   select(-trap_name)  # Remove trap_name column from data
+ 
+ # Set bin_uri as row names
+ berlese_data <- berlese_data %>%
+   column_to_rownames(var = "bin_uri")
+ 
+ light_data <- otu_subset %>%
+  filter(trap_name == "Light trap") %>%
+  pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+  select(-trap_name)  # Remove trap_name column from data
+
+# Set bin_uri as row names
+light_data <- light_data %>%
+  column_to_rownames(var = "bin_uri")
+ 
+malaise_data <- otu_subset %>%
+  filter(trap_name == "Malaise trap") %>%
+  pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+  select(-trap_name)  # Remove trap_name column from data
+
+# Set bin_uri as row names
+malaise_data <- malaise_data %>%
+  column_to_rownames(var = "bin_uri")
+
+pit_data <- otu_subset %>%
+  filter(trap_name == "Pitfall") %>%
+  pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+  select(-trap_name)  # Remove trap_name column from data
+
+# Set bin_uri as row names
+pit_data <- pit_data %>%
+  column_to_rownames(var = "bin_uri")
+
+poly_data <- otu_subset %>%
+  filter(trap_name == "Polytrap") %>%
+  pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+  select(-trap_name)  # Remove trap_name column from data
+
+# Set bin_uri as row names
+poly_data <- poly_data %>%
+  column_to_rownames(var = "bin_uri")
+
+wink_data <- otu_subset %>%
+  filter(trap_name == "Winkler") %>%
+  pivot_wider(names_from = "sample", values_from = "Presence", values_fill = list(Presence = 0)) %>%
+  select(-trap_name)  # Remove trap_name column from data
+
+# Set bin_uri as row names
+wink_data <- wink_data %>%
+  column_to_rownames(var = "bin_uri")
+
+ beating_list <- list(beating_data)
+ berlese_list <- list(berlese_data)
+ light_list <- list(light_data)
+ malaise_list <- list(malaise_data)
+ pit_list <- list(pit_data)
+ wink_list <- list(wink_data)
+ poly_list <- list(poly_data)
+ 
+final <- c(beating_list, berlese_list, light_list, malaise_list, pit_list, poly_list, wink_list)
+
+trap_names <- c("Beating", "Berlese", "Light trap", "Malaise trap", "Pitfall", "Polytrap", "Winkler")
+names(final) <- trap_names
+
+#iNext_final <- iNEXT(final, q = 0, datatype = "incidence_raw", endpoint = 100)
+#ggiNEXT(iNext_final, type = 1) + theme_minimal()
+
+out <- iNEXT(final, q=0, datatype="incidence_raw", size=NULL, endpoint=100, knots=40, se=TRUE, conf=0.95, nboot=50)
+# Plot the data, by method
+ 
+ggiNEXT(out, type=1, facet.var="Order", se = TRUE) + 
+  theme_bw()+
+   scale_colour_manual(values =c('darkgray', "darkolivegreen", "blue",  "firebrick", "darkgoldenrod", "darkorchid","darkorange")) +
+   scale_fill_manual(values =  c( 'darkgray', "darkolivegreen", "blue",  "firebrick", "darkgoldenrod", "darkorchid","darkorange"))
+
+
+# similar but plotting sample coverage for q=0
+
+graph <- ggiNEXT(out, type=2, facet.var="Order", se = TRUE) + 
+   theme_bw() + 
+   scale_colour_manual(values =c('darkgray', "darkolivegreen", "blue",  "firebrick", "darkgoldenrod", "darkorchid","darkorange")
+  ) +
+   scale_fill_manual(values =  c( 'darkgray', "darkolivegreen", "blue",  "firebrick", "darkgoldenrod", "darkorchid","darkorange"))+
+  geom_line(linewidth = 0.03)
+graph
+# Best to save the resulting graph as JPEG
+ 
+# Displaying information 
+
+out
+ 
+# the items of interest are the estimates of species richness in $AsyEst, for q=0,1,2
+ 
+ resu<-out$AsyEst
+ write.csv(resu,"./figures/inextresults.csv")
+ 
+ # results coverage based for q=0,1,2
+ resu2<-out$iNextEst$coverage_based
+ write.csv(resu2,"./figures/inextresults2.csv")
+ 
+ # details of results Size-based not coverage-based
+ resu3<-out$iNextEst$size_based
+ write.csv(resu3,"./figures/inextresults3.csv")
+ 
+  ########################## Singleton analysis
+ 
+ obj$data$diff_table <- compare_groups(obj, data = "tax_abund",
+                                       col = metadata_df$sample,
+                                       groups = metadata_df$trap_name)
+
+ 
+ singleton_taxa <- taxa_names(ps_obj)[taxa_sums(ps_obj) == 1]
+ ps_singletons <- prune_taxa(singleton_taxa, ps_obj)
+ 
+ singleton_df <- psmelt(ps_singletons)
+ 
+ singleton_summary <- singleton_df %>%
+   filter(Abundance >0) %>%
+   group_by(o, trap_name) %>%
+   summarize(n_singletons = n_distinct(OTU), .groups = "drop")
+ 
+ ggplot(singleton_summary, aes(x = trap_name, y = n_singletons, fill = o)) +
+   geom_bar(stat = "identity", position = "stack") +
+   scale_fill_viridis_d(option = "magma") +
+   labs(title = "Number of Singletons per Order per Trap Type",
+        x = "Trap Type",
+        y = "Number of Singletons") +
+   theme_minimal() +
+   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ singleton_summary <- singleton_summary %>%
+   mutate (o = ifelse(o =="" | is.na (o), "Unknown", o))
+  
+pivot_table <- singleton_summary %>%
+  pivot_wider(names_from = o, values_from = n_singletons, values_fill = 0)
+
+print (pivot_table)
+
+write.csv(pivot_table, "./meer subission/singleton_per_trap.csv", row.names = FALSE)
+
+
+######################### MALAISE rarefaction
+
+# Subset metadata to only those sample names used in malaise_list
+malaise_sample_names <- colnames(malaise_list[[1]])
+
+# Keep only metadata rows for those columns
+malaise_metadata <- metadata_df %>%
+  filter(sample %in% malaise_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- malaise_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- malaise_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+malaise_matrix <- malaise_list[[1]]
+
+malaise_wet <- malaise_matrix[, colnames(malaise_matrix) %in% wet_samples]
+malaise_dry <- malaise_matrix[, colnames(malaise_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(malaise_wet); dim(malaise_dry)
+
+# Step 6: Create new list for iNEXT
+malaise_split_list <- list(WET = malaise_wet, DRY = malaise_dry)
+
+# Step 7: Run iNEXT
+malaise_iNEXT <- iNEXT(malaise_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+malaise_coverage<-malaise_iNEXT$iNextEst$coverage_based
+
+# Step 8: Plot
+malaise_diversity <- ggiNEXT(malaise_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Malaise Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+malaise_coverage <- ggiNEXT(malaise_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Malaise Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(malaise_dry)[rowSums(malaise_dry) > 0]
+bins_wet <- rownames(malaise_wet)[rowSums(malaise_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### BERLESE rarefaction
+
+# Subset metadata to only those sample names used in berlese_list
+berlese_sample_names <- colnames(berlese_list[[1]])
+
+# Keep only metadata rows for those columns
+berlese_metadata <- metadata_df %>%
+  filter(sample %in% berlese_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- berlese_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- berlese_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+berlese_matrix <- berlese_list[[1]]
+
+berlese_wet <- berlese_matrix[, colnames(berlese_matrix) %in% wet_samples]
+berlese_dry <- berlese_matrix[, colnames(berlese_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(berlese_wet); dim(berlese_dry)
+
+# Step 6: Create new list for iNEXT
+berlese_split_list <- list(WET = berlese_wet, DRY = berlese_dry)
+
+# Step 7: Run iNEXT
+berlese_iNEXT <- iNEXT(berlese_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+berlese_diversity <- ggiNEXT(berlese_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Berlese Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+berlese_coverage <- ggiNEXT(berlese_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Berlese Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(berlese_dry)[rowSums(berlese_dry) > 0]
+bins_wet <- rownames(berlese_wet)[rowSums(berlese_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### Beating rarefaction
+
+# Subset metadata to only those sample names used in beating_list
+beating_sample_names <- colnames(beating_list[[1]])
+
+# Keep only metadata rows for those columns
+beating_metadata <- metadata_df %>%
+  filter(sample %in% beating_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- beating_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- beating_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+beating_matrix <- beating_list[[1]]
+
+beating_wet <- beating_matrix[, colnames(beating_matrix) %in% wet_samples]
+beating_dry <- beating_matrix[, colnames(beating_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(beating_wet); dim(beating_dry)
+
+# Step 6: Create new list for iNEXT
+beating_split_list <- list(WET = beating_wet, DRY = beating_dry)
+
+# Step 7: Run iNEXT
+beating_iNEXT <- iNEXT(beating_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+beating_diversity <- ggiNEXT(beating_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Beating Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+beating_coverage <- ggiNEXT(beating_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Beating Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(beating_dry)[rowSums(beating_dry) > 0]
+bins_wet <- rownames(beating_wet)[rowSums(beating_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### Winkler rarefaction
+
+# Subset metadata to only those sample names used in wink_list
+wink_sample_names <- colnames(wink_list[[1]])
+
+# Keep only metadata rows for those columns
+wink_metadata <- metadata_df %>%
+  filter(sample %in% wink_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- wink_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- wink_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+wink_matrix <- wink_list[[1]]
+
+wink_wet <- wink_matrix[, colnames(wink_matrix) %in% wet_samples]
+wink_dry <- wink_matrix[, colnames(wink_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(wink_wet); dim(wink_dry)
+
+# Step 6: Create new list for iNEXT
+wink_split_list <- list(WET = wink_wet, DRY = wink_dry)
+
+# Step 7: Run iNEXT
+wink_iNEXT <- iNEXT(wink_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+wink_diversity<-ggiNEXT(wink_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Winkler Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+wink_coverage <- ggiNEXT(wink_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Winkler Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(wink_dry)[rowSums(wink_dry) > 0]
+bins_wet <- rownames(wink_wet)[rowSums(wink_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### polytrap rarefaction
+
+# Subset metadata to only those sample names used in poly_list
+poly_sample_names <- colnames(poly_list[[1]])
+
+# Keep only metadata rows for those columns
+poly_metadata <- metadata_df %>%
+  filter(sample %in% poly_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- poly_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- poly_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+poly_matrix <- poly_list[[1]]
+
+poly_wet <- poly_matrix[, colnames(poly_matrix) %in% wet_samples]
+poly_dry <- poly_matrix[, colnames(poly_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(poly_wet); dim(poly_dry)
+
+# Step 6: Create new list for iNEXT
+poly_split_list <- list(WET = poly_wet, DRY = poly_dry)
+
+# Step 7: Run iNEXT
+poly_iNEXT <- iNEXT(poly_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+poly_diversity <-ggiNEXT(poly_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Polytrap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+poly_coverage <- ggiNEXT(poly_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Polytrap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(poly_dry)[rowSums(poly_dry) > 0]
+bins_wet <- rownames(poly_wet)[rowSums(poly_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### pitfall rarefaction
+
+# Subset metadata to only those sample names used in pit_list
+pit_sample_names <- colnames(pit_list[[1]])
+
+# Keep only metadata rows for those columns
+pit_metadata <- metadata_df %>%
+  filter(sample %in% pit_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- pit_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- pit_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+pit_matrix <- pit_list[[1]]
+
+pit_wet <- pit_matrix[, colnames(pit_matrix) %in% wet_samples]
+pit_dry <- pit_matrix[, colnames(pit_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(pit_wet); dim(pit_dry)
+
+# Step 6: Create new list for iNEXT
+pit_split_list <- list(WET = pit_wet, DRY = pit_dry)
+
+# Step 7: Run iNEXT
+pit_iNEXT <- iNEXT(pit_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+pit_diversity <- ggiNEXT(pit_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Pitfall Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+pit_coverage <-ggiNEXT(pit_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Pitfall Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(pit_dry)[rowSums(pit_dry) > 0]
+bins_wet <- rownames(pit_wet)[rowSums(pit_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+######################### light trap rarefaction
+
+# Subset metadata to only those sample names used in light_list
+light_sample_names <- colnames(light_list[[1]])
+
+# Keep only metadata rows for those columns
+light_metadata <- metadata_df %>%
+  filter(sample %in% light_sample_names)
+
+# Step 4: Split sample names by season
+wet_samples <- light_metadata %>%
+  filter(season == "WET") %>%
+  pull(sample)
+
+dry_samples <- light_metadata %>%
+  filter(season == "DRY") %>%
+  pull(sample)
+
+# Step 5: Subset the incidence matrix
+light_matrix <- light_list[[1]]
+
+light_wet <- light_matrix[, colnames(light_matrix) %in% wet_samples]
+light_dry <- light_matrix[, colnames(light_matrix) %in% dry_samples]
+
+# Optional sanity check
+dim(light_wet); dim(light_dry)
+
+# Step 6: Create new list for iNEXT
+light_split_list <- list(WET = light_wet, DRY = light_dry)
+
+# Step 7: Run iNEXT
+light_iNEXT <- iNEXT(light_split_list, q = 0, datatype = "incidence_raw", endpoint = 100)
+
+# Step 8: Plot
+light_diversity <- ggiNEXT(light_iNEXT, type = 1) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Light Trap Diversity by Season", y = "Species Richness", x = "Sampling Effort")
+
+light_coverage <- ggiNEXT(light_iNEXT, type = 2) +
+  theme_bw() +
+  scale_color_manual(values = c("goldenrod", "dodgerblue")) +
+  scale_fill_manual(values = c("goldenrod", "dodgerblue")) +
+  labs(title = "Light Trap Sample Coverage by Season")
+
+# Get vector of BINs for each season
+bins_dry <- rownames(light_dry)[rowSums(light_dry) > 0]
+bins_wet <- rownames(light_wet)[rowSums(light_wet) > 0]
+
+# Calculate overlap
+shared_bins <- intersect(bins_dry, bins_wet)
+unique_dry <- setdiff(bins_dry, bins_wet)
+unique_wet <- setdiff(bins_wet, bins_dry)
+
+# Report
+cat("Shared BINs:", length(shared_bins), "\n")
+cat("Unique to Dry:", length(unique_dry), "\n")
+cat("Unique to Wet:", length(unique_wet), "\n")
+
+################### Rarefaction and Coverage plots for all traps
+
+
+plotxx
+
+pdf("./meer subission/Major Revisions/diversity_coverage_plots2.pdf", width = 8.3, height = 11.7)  # A4 size in inches
+grid.arrange(
+  malaise_diversity, malaise_coverage,
+  poly_diversity, poly_coverage,
+  light_diversity, light_coverage,
+  wink_diversity, wink_coverage,
+  berlese_diversity, berlese_coverage,
+  pit_diversity, pit_coverage,
+  beating_diversity, beating_coverage,
+  nrow = 7, ncol = 2
+)
+dev.off()
+
+################ Read Breakdown
+
+# Read in the data
+  read_data <- read.csv("readbreakdown.csv")
+
+  # Pivot to long format and specify factor level order
+  read_long <- read_data %>%
+    select(project, total_reads, post_filter, classified, final_reads) %>%
+    pivot_longer(
+      cols = -project,
+      names_to = "step",
+      values_to = "reads"
+    ) %>%
+    mutate(
+      step = factor(step, levels = c("total_reads", "post_filter","classified", "final_reads"))
+    )
+  
+  # Plot
+  ggplot(read_long, aes(x = project, y = reads, fill = step)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_brewer(palette = "Set2", name = "Processing Step",
+                      labels = c("Total Reads", "Post-Filter","Classified to BIN", "Post-Decontam")) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(
+      title = "Read Retention Across Processing Steps",
+      x = "Project",
+      y = "Number of Reads"
+    )
+  

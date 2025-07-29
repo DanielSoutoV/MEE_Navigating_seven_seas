@@ -1,0 +1,351 @@
+sample,sample_method,trap,season,type,trap_name
+B_P01_DRY_total,B,P01,DRY,soil,Berlese
+B_P01_WET_total,B,P01,WET,soil,Berlese
+B_P02_DRY_total,B,P02,DRY,soil,Berlese
+B_P02_WET_total,B,P02,WET,soil,Berlese
+B_P03_DRY_total,B,P03,DRY,soil,Berlese
+B_P03_WET_total,B,P03,WET,soil,Berlese
+B_P04_DRY_total,B,P04,DRY,soil,Berlese
+B_P04_WET_total,B,P04,WET,soil,Berlese
+B_P05_DRY_total,B,P05,DRY,soil,Berlese
+B_P05_WET_total,B,P05,WET,soil,Berlese
+B_P06_DRY_total,B,P06,DRY,soil,Berlese
+B_P06_WET_total,B,P06,WET,soil,Berlese
+B_P07_DRY_total,B,P07,DRY,soil,Berlese
+B_P07_WET_total,B,P07,WET,soil,Berlese
+B_P08_DRY_total,B,P08,DRY,soil,Berlese
+B_P08_WET_total,B,P08,WET,soil,Berlese
+B_P09_DRY_total,B,P09,DRY,soil,Berlese
+B_P09_WET_total,B,P09,WET,soil,Berlese
+B_P10_DRY_total,B,P10,DRY,soil,Berlese
+B_P10_WET_total,B,P10,WET,soil,Berlese
+B_P11_DRY_total,B,P11,DRY,soil,Berlese
+B_P11_WET_total,B,P11,WET,soil,Berlese
+B_P12_DRY_total,B,P12,DRY,soil,Berlese
+B_P12_WET_total,B,P12,WET,soil,Berlese
+B_P13_DRY_total,B,P13,DRY,soil,Berlese
+B_P13_WET_total,B,P13,WET,soil,Berlese
+B_P14_DRY_total,B,P14,DRY,soil,Berlese
+B_P14_WET_total,B,P14,WET,soil,Berlese
+B_P15_DRY_total,B,P15,DRY,soil,Berlese
+B_P15_WET_total,B,P15,WET,soil,Berlese
+B_P16_DRY_total,B,P16,DRY,soil,Berlese
+B_P16_WET_total,B,P16,WET,soil,Berlese
+B_P17_DRY_total,B,P17,DRY,soil,Berlese
+B_P17_WET_total,B,P17,WET,soil,Berlese
+B_P18_DRY_total,B,P18,DRY,soil,Berlese
+B_P18_WET_total,B,P18,WET,soil,Berlese
+B_P19_DRY_total,B,P19,DRY,soil,Berlese
+B_P19_WET_total,B,P19,WET,soil,Berlese
+B_P20_DRY_total,B,P20,DRY,soil,Berlese
+B_P20_WET_total,B,P20,WET,soil,Berlese
+B_P21_DRY_total,B,P21,DRY,soil,Berlese
+B_P21_WET_total,B,P21,WET,soil,Berlese
+B_P22_DRY_total,B,P22,DRY,soil,Berlese
+B_P22_WET_total,B,P22,WET,soil,Berlese
+B_P23_DRY_total,B,P23,DRY,soil,Berlese
+B_P23_WET_total,B,P23,WET,soil,Berlese
+B_P24_DRY_total,B,P24,DRY,soil,Berlese
+B_P24_WET_total,B,P24,WET,soil,Berlese
+B_P25_DRY_total,B,P25,DRY,soil,Berlese
+B_P25_WET_total,B,P25,WET,soil,Berlese
+BE_P01_DRY_total,BE,P01,DRY,vegetation,Beating
+BE_P01_WET_total,BE,P01,WET,vegetation,Beating
+BE_P02_DRY_total,BE,P02,DRY,vegetation,Beating
+BE_P02_WET_total,BE,P02,WET,vegetation,Beating
+BE_P03_DRY_total,BE,P03,DRY,vegetation,Beating
+BE_P03_WET_total,BE,P03,WET,vegetation,Beating
+BE_P04_DRY_total,BE,P04,DRY,vegetation,Beating
+BE_P04_WET_total,BE,P04,WET,vegetation,Beating
+BE_P05_DRY_total,BE,P05,DRY,vegetation,Beating
+BE_P05_WET_total,BE,P05,WET,vegetation,Beating
+BE_P06_DRY_total,BE,P06,DRY,vegetation,Beating
+BE_P06_WET_total,BE,P06,WET,vegetation,Beating
+BE_P07_DRY_total,BE,P07,DRY,vegetation,Beating
+BE_P07_WET_total,BE,P07,WET,vegetation,Beating
+BE_P08_DRY_total,BE,P08,DRY,vegetation,Beating
+BE_P08_WET_total,BE,P08,WET,vegetation,Beating
+BE_P09_DRY_total,BE,P09,DRY,vegetation,Beating
+BE_P09_WET_total,BE,P09,WET,vegetation,Beating
+BE_P10_DRY_total,BE,P10,DRY,vegetation,Beating
+BE_P10_WET_total,BE,P10,WET,vegetation,Beating
+BE_P11_DRY_total,BE,P11,DRY,vegetation,Beating
+BE_P11_WET_total,BE,P11,WET,vegetation,Beating
+BE_P12_DRY_total,BE,P12,DRY,vegetation,Beating
+BE_P12_WET_total,BE,P12,WET,vegetation,Beating
+BE_P13_DRY_total,BE,P13,DRY,vegetation,Beating
+BE_P13_WET_total,BE,P13,WET,vegetation,Beating
+BE_P14_DRY_total,BE,P14,DRY,vegetation,Beating
+BE_P14_WET_total,BE,P14,WET,vegetation,Beating
+BE_P15_DRY_total,BE,P15,DRY,vegetation,Beating
+BE_P15_WET_total,BE,P15,WET,vegetation,Beating
+BE_P16_DRY_total,BE,P16,DRY,vegetation,Beating
+BE_P16_WET_total,BE,P16,WET,vegetation,Beating
+BE_P17_DRY_total,BE,P17,DRY,vegetation,Beating
+BE_P17_WET_total,BE,P17,WET,vegetation,Beating
+BE_P18_DRY_total,BE,P18,DRY,vegetation,Beating
+BE_P18_WET_total,BE,P18,WET,vegetation,Beating
+BE_P19_DRY_total,BE,P19,DRY,vegetation,Beating
+BE_P19_WET_total,BE,P19,WET,vegetation,Beating
+BE_P20_DRY_total,BE,P20,DRY,vegetation,Beating
+BE_P20_WET_total,BE,P20,WET,vegetation,Beating
+BE_P21_DRY_total,BE,P21,DRY,vegetation,Beating
+BE_P21_WET_total,BE,P21,WET,vegetation,Beating
+BE_P22_DRY_total,BE,P22,DRY,vegetation,Beating
+BE_P22_WET_total,BE,P22,WET,vegetation,Beating
+BE_P23_DRY_total,BE,P23,DRY,vegetation,Beating
+BE_P23_WET_total,BE,P23,WET,vegetation,Beating
+BE_P24_DRY_total,BE,P24,DRY,vegetation,Beating
+BE_P24_WET_total,BE,P24,WET,vegetation,Beating
+BE_P25_DRY_total,BE,P25,DRY,vegetation,Beating
+BE_P25_WET_total,BE,P25,WET,vegetation,Beating
+LT_P01_DRY_total,LT,P01,DRY,flight,Light trap
+LT_P01_WET_total,LT,P01,WET,flight,Light trap
+LT_P02_DRY_total,LT,P02,DRY,flight,Light trap
+LT_P02_WET_total,LT,P02,WET,flight,Light trap
+LT_P03_DRY_total,LT,P03,DRY,flight,Light trap
+LT_P03_WET_total,LT,P03,WET,flight,Light trap
+LT_P04_DRY_total,LT,P04,DRY,flight,Light trap
+LT_P04_WET_total,LT,P04,WET,flight,Light trap
+LT_P05_DRY_total,LT,P05,DRY,flight,Light trap
+LT_P05_WET_total,LT,P05,WET,flight,Light trap
+LT_P06_DRY_total,LT,P06,DRY,flight,Light trap
+LT_P06_WET_total,LT,P06,WET,flight,Light trap
+LT_P07_DRY_total,LT,P07,DRY,flight,Light trap
+LT_P07_WET_total,LT,P07,WET,flight,Light trap
+LT_P08_DRY_total,LT,P08,DRY,flight,Light trap
+LT_P08_WET_total,LT,P08,WET,flight,Light trap
+LT_P09_DRY_total,LT,P09,DRY,flight,Light trap
+LT_P09_WET_total,LT,P09,WET,flight,Light trap
+LT_P10_DRY_total,LT,P10,DRY,flight,Light trap
+LT_P10_WET_total,LT,P10,WET,flight,Light trap
+LT_P11_DRY_total,LT,P11,DRY,flight,Light trap
+LT_P11_WET_total,LT,P11,WET,flight,Light trap
+LT_P12_DRY_total,LT,P12,DRY,flight,Light trap
+LT_P12_WET_total,LT,P12,WET,flight,Light trap
+LT_P13_DRY_total,LT,P13,DRY,flight,Light trap
+LT_P13_WET_total,LT,P13,WET,flight,Light trap
+LT_P14_DRY_total,LT,P14,DRY,flight,Light trap
+LT_P14_WET_total,LT,P14,WET,flight,Light trap
+LT_P15_DRY_total,LT,P15,DRY,flight,Light trap
+LT_P15_WET_total,LT,P15,WET,flight,Light trap
+LT_P16_DRY_total,LT,P16,DRY,flight,Light trap
+LT_P16_WET_total,LT,P16,WET,flight,Light trap
+LT_P17_DRY_total,LT,P17,DRY,flight,Light trap
+LT_P17_WET_total,LT,P17,WET,flight,Light trap
+LT_P18_DRY_total,LT,P18,DRY,flight,Light trap
+LT_P18_WET_total,LT,P18,WET,flight,Light trap
+LT_P19_DRY_total,LT,P19,DRY,flight,Light trap
+LT_P19_WET_total,LT,P19,WET,flight,Light trap
+LT_P20_DRY_total,LT,P20,DRY,flight,Light trap
+LT_P20_WET_total,LT,P20,WET,flight,Light trap
+LT_P21_DRY_total,LT,P21,DRY,flight,Light trap
+LT_P21_WET_total,LT,P21,WET,flight,Light trap
+LT_P22_DRY_total,LT,P22,DRY,flight,Light trap
+LT_P22_WET_total,LT,P22,WET,flight,Light trap
+LT_P23_DRY_total,LT,P23,DRY,flight,Light trap
+LT_P23_WET_total,LT,P23,WET,flight,Light trap
+LT_P24_DRY_total,LT,P24,DRY,flight,Light trap
+LT_P24_WET_total,LT,P24,WET,flight,Light trap
+LT_P25_DRY_total,LT,P25,DRY,flight,Light trap
+LT_P25_WET_total,LT,P25,WET,flight,Light trap
+MT_P01_DRY_total,MT,P01,DRY,flight,Malaise trap
+MT_P01_WET_total,MT,P01,WET,flight,Malaise trap
+MT_P02_DRY_total,MT,P02,DRY,flight,Malaise trap
+MT_P02_WET_total,MT,P02,WET,flight,Malaise trap
+MT_P03_DRY_total,MT,P03,DRY,flight,Malaise trap
+MT_P03_WET_total,MT,P03,WET,flight,Malaise trap
+MT_P04_DRY_total,MT,P04,DRY,flight,Malaise trap
+MT_P04_WET_total,MT,P04,WET,flight,Malaise trap
+MT_P05_DRY_total,MT,P05,DRY,flight,Malaise trap
+MT_P05_WET_total,MT,P05,WET,flight,Malaise trap
+MT_P06_DRY_total,MT,P06,DRY,flight,Malaise trap
+MT_P06_WET_total,MT,P06,WET,flight,Malaise trap
+MT_P07_DRY_total,MT,P07,DRY,flight,Malaise trap
+MT_P07_WET_total,MT,P07,WET,flight,Malaise trap
+MT_P08_DRY_total,MT,P08,DRY,flight,Malaise trap
+MT_P08_WET_total,MT,P08,WET,flight,Malaise trap
+MT_P09_DRY_total,MT,P09,DRY,flight,Malaise trap
+MT_P09_WET_total,MT,P09,WET,flight,Malaise trap
+MT_P10_DRY_total,MT,P10,DRY,flight,Malaise trap
+MT_P10_WET_total,MT,P10,WET,flight,Malaise trap
+MT_P11_DRY_total,MT,P11,DRY,flight,Malaise trap
+MT_P11_WET_total,MT,P11,WET,flight,Malaise trap
+MT_P12_DRY_total,MT,P12,DRY,flight,Malaise trap
+MT_P12_WET_total,MT,P12,WET,flight,Malaise trap
+MT_P13_DRY_total,MT,P13,DRY,flight,Malaise trap
+MT_P13_WET_total,MT,P13,WET,flight,Malaise trap
+MT_P14_DRY_total,MT,P14,DRY,flight,Malaise trap
+MT_P14_WET_total,MT,P14,WET,flight,Malaise trap
+MT_P15_DRY_total,MT,P15,DRY,flight,Malaise trap
+MT_P15_WET_total,MT,P15,WET,flight,Malaise trap
+MT_P16_DRY_total,MT,P16,DRY,flight,Malaise trap
+MT_P16_WET_total,MT,P16,WET,flight,Malaise trap
+MT_P17_DRY_total,MT,P17,DRY,flight,Malaise trap
+MT_P17_WET_total,MT,P17,WET,flight,Malaise trap
+MT_P18_DRY_total,MT,P18,DRY,flight,Malaise trap
+MT_P18_WET_total,MT,P18,WET,flight,Malaise trap
+MT_P19_DRY_total,MT,P19,DRY,flight,Malaise trap
+MT_P19_WET_total,MT,P19,WET,flight,Malaise trap
+MT_P20_DRY_total,MT,P20,DRY,flight,Malaise trap
+MT_P20_WET_total,MT,P20,WET,flight,Malaise trap
+MT_P21_DRY_total,MT,P21,DRY,flight,Malaise trap
+MT_P21_WET_total,MT,P21,WET,flight,Malaise trap
+MT_P22_DRY_total,MT,P22,DRY,flight,Malaise trap
+MT_P22_WET_total,MT,P22,WET,flight,Malaise trap
+MT_P23_DRY_total,MT,P23,DRY,flight,Malaise trap
+MT_P23_WET_total,MT,P23,WET,flight,Malaise trap
+MT_P24_DRY_total,MT,P24,DRY,flight,Malaise trap
+MT_P24_WET_total,MT,P24,WET,flight,Malaise trap
+MT_P25_DRY_total,MT,P25,DRY,flight,Malaise trap
+MT_P25_WET_total,MT,P25,WET,flight,Malaise trap
+PF_P01_DRY_total,PF,P01,DRY,soil,Pitfall
+PF_P01_WET_total,PF,P01,WET,soil,Pitfall
+PF_P02_DRY_total,PF,P02,DRY,soil,Pitfall
+PF_P02_WET_total,PF,P02,WET,soil,Pitfall
+PF_P03_DRY_total,PF,P03,DRY,soil,Pitfall
+PF_P03_WET_total,PF,P03,WET,soil,Pitfall
+PF_P04_DRY_total,PF,P04,DRY,soil,Pitfall
+PF_P04_WET_total,PF,P04,WET,soil,Pitfall
+PF_P05_DRY_total,PF,P05,DRY,soil,Pitfall
+PF_P05_WET_total,PF,P05,WET,soil,Pitfall
+PF_P06_DRY_total,PF,P06,DRY,soil,Pitfall
+PF_P06_WET_total,PF,P06,WET,soil,Pitfall
+PF_P07_DRY_total,PF,P07,DRY,soil,Pitfall
+PF_P07_WET_total,PF,P07,WET,soil,Pitfall
+PF_P08_DRY_total,PF,P08,DRY,soil,Pitfall
+PF_P08_WET_total,PF,P08,WET,soil,Pitfall
+PF_P09_DRY_total,PF,P09,DRY,soil,Pitfall
+PF_P09_WET_total,PF,P09,WET,soil,Pitfall
+PF_P10_DRY_total,PF,P10,DRY,soil,Pitfall
+PF_P10_WET_total,PF,P10,WET,soil,Pitfall
+PF_P11_DRY_total,PF,P11,DRY,soil,Pitfall
+PF_P11_WET_total,PF,P11,WET,soil,Pitfall
+PF_P12_DRY_total,PF,P12,DRY,soil,Pitfall
+PF_P12_WET_total,PF,P12,WET,soil,Pitfall
+PF_P13_DRY_total,PF,P13,DRY,soil,Pitfall
+PF_P13_WET_total,PF,P13,WET,soil,Pitfall
+PF_P14_DRY_total,PF,P14,DRY,soil,Pitfall
+PF_P14_WET_total,PF,P14,WET,soil,Pitfall
+PF_P15_DRY_total,PF,P15,DRY,soil,Pitfall
+PF_P15_WET_total,PF,P15,WET,soil,Pitfall
+PF_P16_DRY_total,PF,P16,DRY,soil,Pitfall
+PF_P16_WET_total,PF,P16,WET,soil,Pitfall
+PF_P17_DRY_total,PF,P17,DRY,soil,Pitfall
+PF_P17_WET_total,PF,P17,WET,soil,Pitfall
+PF_P18_DRY_total,PF,P18,DRY,soil,Pitfall
+PF_P18_WET_total,PF,P18,WET,soil,Pitfall
+PF_P19_DRY_total,PF,P19,DRY,soil,Pitfall
+PF_P19_WET_total,PF,P19,WET,soil,Pitfall
+PF_P20_DRY_total,PF,P20,DRY,soil,Pitfall
+PF_P20_WET_total,PF,P20,WET,soil,Pitfall
+PF_P21_DRY_total,PF,P21,DRY,soil,Pitfall
+PF_P21_WET_total,PF,P21,WET,soil,Pitfall
+PF_P22_DRY_total,PF,P22,DRY,soil,Pitfall
+PF_P22_WET_total,PF,P22,WET,soil,Pitfall
+PF_P23_DRY_total,PF,P23,DRY,soil,Pitfall
+PF_P23_WET_total,PF,P23,WET,soil,Pitfall
+PF_P24_DRY_total,PF,P24,DRY,soil,Pitfall
+PF_P24_WET_total,PF,P24,WET,soil,Pitfall
+PF_P25_DRY_total,PF,P25,DRY,soil,Pitfall
+PF_P25_WET_total,PF,P25,WET,soil,Pitfall
+PT_P01_DRY_total,PT,P01,DRY,flight,Polytrap
+PT_P01_WET_total,PT,P01,WET,flight,Polytrap
+PT_P02_DRY_total,PT,P02,DRY,flight,Polytrap
+PT_P02_WET_total,PT,P02,WET,flight,Polytrap
+PT_P03_DRY_total,PT,P03,DRY,flight,Polytrap
+PT_P03_WET_total,PT,P03,WET,flight,Polytrap
+PT_P04_DRY_total,PT,P04,DRY,flight,Polytrap
+PT_P04_WET_total,PT,P04,WET,flight,Polytrap
+PT_P05_DRY_total,PT,P05,DRY,flight,Polytrap
+PT_P05_WET_total,PT,P05,WET,flight,Polytrap
+PT_P06_DRY_total,PT,P06,DRY,flight,Polytrap
+PT_P06_WET_total,PT,P06,WET,flight,Polytrap
+PT_P07_DRY_total,PT,P07,DRY,flight,Polytrap
+PT_P07_WET_total,PT,P07,WET,flight,Polytrap
+PT_P08_DRY_total,PT,P08,DRY,flight,Polytrap
+PT_P08_WET_total,PT,P08,WET,flight,Polytrap
+PT_P09_DRY_total,PT,P09,DRY,flight,Polytrap
+PT_P09_WET_total,PT,P09,WET,flight,Polytrap
+PT_P10_DRY_total,PT,P10,DRY,flight,Polytrap
+PT_P10_WET_total,PT,P10,WET,flight,Polytrap
+PT_P11_DRY_total,PT,P11,DRY,flight,Polytrap
+PT_P11_WET_total,PT,P11,WET,flight,Polytrap
+PT_P12_DRY_total,PT,P12,DRY,flight,Polytrap
+PT_P12_WET_total,PT,P12,WET,flight,Polytrap
+PT_P13_DRY_total,PT,P13,DRY,flight,Polytrap
+PT_P13_WET_total,PT,P13,WET,flight,Polytrap
+PT_P14_DRY_total,PT,P14,DRY,flight,Polytrap
+PT_P14_WET_total,PT,P14,WET,flight,Polytrap
+PT_P15_DRY_total,PT,P15,DRY,flight,Polytrap
+PT_P15_WET_total,PT,P15,WET,flight,Polytrap
+PT_P16_DRY_total,PT,P16,DRY,flight,Polytrap
+PT_P16_WET_total,PT,P16,WET,flight,Polytrap
+PT_P17_DRY_total,PT,P17,DRY,flight,Polytrap
+PT_P17_WET_total,PT,P17,WET,flight,Polytrap
+PT_P18_DRY_total,PT,P18,DRY,flight,Polytrap
+PT_P18_WET_total,PT,P18,WET,flight,Polytrap
+PT_P19_DRY_total,PT,P19,DRY,flight,Polytrap
+PT_P19_WET_total,PT,P19,WET,flight,Polytrap
+PT_P20_DRY_total,PT,P20,DRY,flight,Polytrap
+PT_P20_WET_total,PT,P20,WET,flight,Polytrap
+PT_P21_DRY_total,PT,P21,DRY,flight,Polytrap
+PT_P21_WET_total,PT,P21,WET,flight,Polytrap
+PT_P22_DRY_total,PT,P22,DRY,flight,Polytrap
+PT_P22_WET_total,PT,P22,WET,flight,Polytrap
+PT_P23_DRY_total,PT,P23,DRY,flight,Polytrap
+PT_P23_WET_total,PT,P23,WET,flight,Polytrap
+PT_P24_DRY_total,PT,P24,DRY,flight,Polytrap
+PT_P24_WET_total,PT,P24,WET,flight,Polytrap
+PT_P25_DRY_total,PT,P25,DRY,flight,Polytrap
+PT_P25_WET_total,PT,P25,WET,flight,Polytrap
+W_P01_DRY_total,W,P01,DRY,soil,Winkler
+W_P01_WET_total,W,P01,WET,soil,Winkler
+W_P02_DRY_total,W,P02,DRY,soil,Winkler
+W_P02_WET_total,W,P02,WET,soil,Winkler
+W_P03_DRY_total,W,P03,DRY,soil,Winkler
+W_P03_WET_total,W,P03,WET,soil,Winkler
+W_P04_DRY_total,W,P04,DRY,soil,Winkler
+W_P04_WET_total,W,P04,WET,soil,Winkler
+W_P05_DRY_total,W,P05,DRY,soil,Winkler
+W_P05_WET_total,W,P05,WET,soil,Winkler
+W_P06_DRY_total,W,P06,DRY,soil,Winkler
+W_P06_WET_total,W,P06,WET,soil,Winkler
+W_P07_DRY_total,W,P07,DRY,soil,Winkler
+W_P07_WET_total,W,P07,WET,soil,Winkler
+W_P08_DRY_total,W,P08,DRY,soil,Winkler
+W_P08_WET_total,W,P08,WET,soil,Winkler
+W_P09_DRY_total,W,P09,DRY,soil,Winkler
+W_P09_WET_total,W,P09,WET,soil,Winkler
+W_P10_DRY_total,W,P10,DRY,soil,Winkler
+W_P10_WET_total,W,P10,WET,soil,Winkler
+W_P11_DRY_total,W,P11,DRY,soil,Winkler
+W_P11_WET_total,W,P11,WET,soil,Winkler
+W_P12_DRY_total,W,P12,DRY,soil,Winkler
+W_P12_WET_total,W,P12,WET,soil,Winkler
+W_P13_DRY_total,W,P13,DRY,soil,Winkler
+W_P13_WET_total,W,P13,WET,soil,Winkler
+W_P14_DRY_total,W,P14,DRY,soil,Winkler
+W_P14_WET_total,W,P14,WET,soil,Winkler
+W_P15_DRY_total,W,P15,DRY,soil,Winkler
+W_P15_WET_total,W,P15,WET,soil,Winkler
+W_P16_DRY_total,W,P16,DRY,soil,Winkler
+W_P16_WET_total,W,P16,WET,soil,Winkler
+W_P17_DRY_total,W,P17,DRY,soil,Winkler
+W_P17_WET_total,W,P17,WET,soil,Winkler
+W_P18_DRY_total,W,P18,DRY,soil,Winkler
+W_P18_WET_total,W,P18,WET,soil,Winkler
+W_P19_DRY_total,W,P19,DRY,soil,Winkler
+W_P19_WET_total,W,P19,WET,soil,Winkler
+W_P20_DRY_total,W,P20,DRY,soil,Winkler
+W_P20_WET_total,W,P20,WET,soil,Winkler
+W_P21_DRY_total,W,P21,DRY,soil,Winkler
+W_P21_WET_total,W,P21,WET,soil,Winkler
+W_P22_DRY_total,W,P22,DRY,soil,Winkler
+W_P22_WET_total,W,P22,WET,soil,Winkler
+W_P23_DRY_total,W,P23,DRY,soil,Winkler
+W_P23_WET_total,W,P23,WET,soil,Winkler
+W_P24_DRY_total,W,P24,DRY,soil,Winkler
+W_P24_WET_total,W,P24,WET,soil,Winkler
+W_P25_DRY_total,W,P25,DRY,soil,Winkler
+W_P25_WET_total,W,P25,WET,soil,Winkler
